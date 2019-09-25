@@ -1,5 +1,6 @@
 {{template "base" .}}
 
 {{define "body"}}
-    {{template "kv-table" .Env}}
+    {{template "kv-table" .KvTables.General}}
+    {{template "kv-table" .KvTables.Env}}
 {{end}}

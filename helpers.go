@@ -8,11 +8,20 @@ import (
 	"runtime/debug"
 	"strings"
 	"sync"
-	"time"
+    "time"
+
+    "github.com/tomasen/realip"
 )
 
-var cachedEnv map[string]string
-var fetchEnvOnce sync.Once
+type defaultKvTableCache struct {
+	cache *kvTable
+	once  sync.Once
+}
+
+var defaultKvTableCaches = map[string]*defaultKvTableCache{
+	"Env":     &defaultKvTableCache{},
+	"General": &defaultKvTableCache{},
+}
 
 func (app *application) serverError(w http.ResponseWriter, err error) {
 	trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
@@ -51,19 +60,42 @@ func (app *application) addDefaultData(td *templateData, r *http.Request) *templ
 	if td == nil {
 		td = &templateData{}
 	}
-	td.CurrentDate = time.Now().Format(time.RFC3339)
-	td.Env = func() map[string]string {
-		fetchEnvOnce.Do(func() {
-			cachedEnv = map[string]string{}
-			for _, env := range os.Environ() {
-				if i := strings.IndexByte(env, '='); i >= 0 {
-					cachedEnv[env[:i]] = env[i+1:]
-				}
-			}
-		})
 
-		return cachedEnv
-	}()
+	if td.KvTables == nil {
+		td.KvTables = map[string]*kvTable{}
+	}
+
+	if _, exists := td.KvTables["General"]; !exists {
+		td.KvTables["General"] = func() *kvTable {
+			defaultKvTableCaches["General"].once.Do(func() {
+				defaultKvTableCaches["General"].cache = &kvTable{
+					Title: "General",
+					Values: map[string]string{
+                        "Current Date": time.Now().Format(time.RFC3339),
+                        "Remote Address": realip.FromRequest(r),
+					},
+				}
+			})
+			return defaultKvTableCaches["General"].cache
+		}()
+	}
+
+	if _, exists := td.KvTables["Env"]; !exists {
+		td.KvTables["Env"] = func() *kvTable {
+			defaultKvTableCaches["Env"].once.Do(func() {
+				defaultKvTableCaches["Env"].cache = &kvTable{
+					Title:  "Environment variables",
+					Values: map[string]string{},
+				}
+				for _, env := range os.Environ() {
+					if i := strings.IndexByte(env, '='); i >= 0 {
+						defaultKvTableCaches["Env"].cache.Values[env[:i]] = env[i+1:]
+					}
+				}
+			})
+			return defaultKvTableCaches["Env"].cache
+		}()
+	}
 
 	return td
 }

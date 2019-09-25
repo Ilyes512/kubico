@@ -2,7 +2,7 @@
 <div class="kv-table">
     <h1>
         <span>#</span>
-        <span>Environment variables</span>
+        <span>{{.Title}}</span>
     </h1>
     <table>
         <thead>
@@ -18,7 +18,7 @@
             </tr>
         </tfoot>
         <tbody>
-            {{range $key, $val := .}}
+            {{range $key, $val := .Values}}
             <tr>
                 <td>{{$key}}</td>
                 <td>{{$val}}</td>

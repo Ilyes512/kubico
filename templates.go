@@ -7,9 +7,13 @@ import (
 	packr "github.com/gobuffalo/packr/v2"
 )
 
+type kvTable struct {
+	Title  string
+	Values map[string]string
+}
+
 type templateData struct {
-	CurrentDate string
-	Env         map[string]string
+	KvTables map[string]*kvTable
 }
 
 func newTemplateCache() (map[string]*template.Template, error) {
