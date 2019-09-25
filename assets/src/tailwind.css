@@ -13,7 +13,7 @@
             @apply text-center m-6;
 
             h1 {
-                @apply text-6xl font-extrabold text-indigo-400 tracking-wider uppercase opacity-100;
+                @apply font-extrabold text-indigo-400 tracking-wider uppercase opacity-100;
             }
         }
     }
