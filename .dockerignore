@@ -1,0 +1,12 @@
+/.git
+/.vscode
+/build
+/assets
+!/assets/dist
+/.dockerignore
+/.editorconfig
+/.env
+/.gitignore
+/kubico
+/README.md
+/Taskfile.yml

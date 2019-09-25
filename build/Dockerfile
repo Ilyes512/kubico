@@ -1,0 +1,35 @@
+FROM golang:1.13.0-alpine3.10 AS builder
+
+ARG COMPRESS=false
+ENV COMPRESS=$COMPRESS
+
+WORKDIR /src
+
+RUN apk add --no-cache \
+        git \
+        musl-dev \
+        gcc \
+        make \
+        libc-dev \
+        upx \
+    && go get -u github.com/gobuffalo/packr/v2/packr2
+
+COPY go.mod .
+COPY go.sum .
+
+RUN go mod download
+
+COPY . .
+
+RUN go generate \
+    && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -tags netgo -ldflags '-extldflags "-static" -s -w' -o ./build/kubico
+
+RUN if [ $COMPRESS = true ]; then upx --brute --no-progress ./build/kubico; fi
+
+FROM scratch
+
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs
+COPY --from=builder /src/build/kubico /
+COPY --from=builder /etc/passwd /etc/passwd
+
+CMD ["/kubico"]

@@ -1,0 +1,84 @@
+version: "2"
+
+vars:
+  EXE: kubico{{exeExt}}
+
+tasks:
+  run:
+    desc: Build and run the web app
+    silent: true
+    cmds:
+      - go run .
+
+  build:
+    desc: Build the web app
+    silent: true
+    cmds:
+      - go generate
+      - go build -v -o {{.EXE}}
+      - packr2 clean
+
+  cleanup:
+    desc: Cleanup
+    silent: true
+    cmds:
+      - go clean -n github.com/Ilyes512/kubico
+      - if [ -x "$(command -v packr2)" ]; then packr2 clean; fi
+
+  dl-deps:
+    desc: Install tools required to build this app
+    silent: true
+    cmds:
+      - task: go-get
+        vars: { REPO: github.com/gobuffalo/packr/v2/packr2 }
+
+  go-get:
+    cmds:
+      - go get -u {{.REPO}}
+
+########################################################################################################################
+#
+# Docker
+#
+########################################################################################################################
+
+  d:build:
+    desc: Build docker container
+    silent: true
+    cmds:
+      - docker build --tag ilyes512/kubico:fromsource --file ./build/Dockerfile .
+
+  d:run:
+    desc: Run the container
+    silent: true
+    deps: [d:build]
+    cmds:
+      - |-
+        if [ -s .env ]; then
+          docker run --tty --interactive --rm --publish 8080:8080 --volume $(pwd)/.env:/.env ilyes512/kubico:fromsource;
+        else
+          docker run --tty --interactive --rm --publish 8080:8080 ilyes512/kubico:fromsource;
+        fi
+
+########################################################################################################################
+#
+# NODE / NPM
+#
+########################################################################################################################
+  n:dev:
+    desc: Run "npm run development"
+    silent: true
+    cmds:
+      - npm run --prefix ./assets development
+
+  n:prd:
+    desc: Run "npm run development"
+    silent: true
+    cmds:
+      - npm run --prefix ./assets production
+
+  n:dev:watch:
+    desc: Run "npm run development"
+    silent: true
+    cmds:
+      - npm run --prefix ./assets development -- --watch

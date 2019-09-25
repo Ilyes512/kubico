@@ -1,0 +1,30 @@
+{{define "kv-table"}}
+<div class="kv-table">
+    <h1>
+        <span>#</span>
+        <span>Environment variables</span>
+    </h1>
+    <table>
+        <thead>
+            <tr>
+                <td>Key</td>
+                <td>Value</td>
+            </tr>
+        </thead>
+        <tfoot>
+            <tr>
+                <td>Key</td>
+                <td>Value</td>
+            </tr>
+        </tfoot>
+        <tbody>
+            {{range $key, $val := .}}
+            <tr>
+                <td>{{$key}}</td>
+                <td>{{$val}}</td>
+            </tr>
+            {{end}}
+        </tbody>
+    </table>
+</div>
+{{end}}

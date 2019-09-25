@@ -1,0 +1,25 @@
+{{define "base"}}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Kubico</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="/static/tailwind.css">
+    <meta name="theme-color" content="#fafafa">
+</head>
+
+<body class="bg-svg">
+    <div class="container">
+        <header>
+            <h1>Kubico</h1>
+        </header>
+        <section>
+            {{template "body" .}}
+        </section>
+    </div>
+</body>
+
+</html>
+{{end}}
