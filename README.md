@@ -2,13 +2,12 @@
 
 [![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/ilyes512/kubico.svg)](https://hub.docker.com/r/ilyes512/kubico)
 [![Docker Pulls](https://img.shields.io/docker/pulls/ilyes512/kubico.svg)](https://hub.docker.com/r/ilyes512/kubico)
-[![MicroBadger Size](https://img.shields.io/microbadger/image-size/ilyes512/kubico.svg)](https://microbadger.com/images/ilyes512/kubico)
 [![MicroBadger Layers](https://img.shields.io/microbadger/layers/ilyes512/kubico.svg)](https://microbadger.com/images/ilyes512/kubico)
 
 ## How to use/build
 
 Requirements:
-- Docker
+- [Docker](https://docs.docker.com/install/)
 - [Task](https://taskfile.dev/#/installation) (A Task runner)
 - [Go](https://golang.org/doc/install)
 
@@ -25,3 +24,9 @@ task build
 # For list of tasks
 task --list
 ```
+
+## Screenshot
+
+<div align="center">
+  <img width="500" src="docs/assets/images/kubico.png">
+</div>
