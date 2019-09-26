@@ -5,7 +5,6 @@ import (
 	"context"
 	"errors"
 	"flag"
-	"fmt"
 	"html/template"
 	"log"
 	"net"
@@ -26,6 +25,8 @@ type config struct {
 	Host         string `env:"KUBICO_HOST" envDefault:"0.0.0.0"`
 	Port         string `env:"KUBICO_PORT" envDefault:"8080"`
 	Cacheheaders bool   `env:"KUBICO_NO_CACHE"`
+	Timeout      int64  `env:"KUBICO_TIMEOUT_SECONDS"`
+	MaxRequests  int64  `env:"KUBICO_MAX_REQUESTS"`
 }
 
 type application struct {
@@ -36,6 +37,8 @@ type application struct {
 	wg            sync.WaitGroup
 	templateCache map[string]*template.Template
 }
+
+var timeoutChan, requestLimitChan chan struct{}
 
 func main() {
 	app := &application{
@@ -58,11 +61,23 @@ func main() {
 	app.Start()
 	defer app.Stop()
 
+	app.SetAppTimeout()
+
+	if app.config.MaxRequests > 0 {
+		requestLimitChan = make(chan struct{}, 1)
+	}
+
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt, os.Kill, syscall.SIGTERM)
 
-	<-sigChan
-	fmt.Println("Got interrupt signal")
+	select {
+	case <-sigChan:
+		app.infoLog.Print("Got a OS interrupt signal.")
+	case <-timeoutChan:
+		app.infoLog.Printf("Kubico timeout after %d seconds.", app.config.Timeout)
+	case <-requestLimitChan:
+		app.infoLog.Printf("Kubico request limit reached of %d requests", app.config.MaxRequests)
+	}
 }
 
 func (app *application) Start() {
@@ -126,4 +141,14 @@ func (app *application) fetchConfig() error {
 	}
 
 	return nil
+}
+
+func (app *application) SetAppTimeout() {
+	if app.config.Timeout > 0 {
+		timeoutChan = make(chan struct{}, 1)
+
+		time.AfterFunc(time.Duration(app.config.Timeout)*time.Second, func() {
+			close(timeoutChan)
+		})
+	}
 }
