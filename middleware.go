@@ -4,7 +4,7 @@ import (
 	"net/http"
 )
 
-func (app *application) noCache(h func(http.ResponseWriter, *http.Request)) http.HandlerFunc {
+func (app *application) noCache(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if app.config.Cacheheaders == true {
 			w.Header().Set("Cache-Control", "no-store, must-revalidate")
