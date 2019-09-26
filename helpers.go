@@ -6,11 +6,12 @@ import (
 	"net/http"
 	"os"
 	"runtime/debug"
+	"strconv"
 	"strings"
 	"sync"
-    "time"
+	"time"
 
-    "github.com/tomasen/realip"
+	"github.com/tomasen/realip"
 )
 
 type defaultKvTableCache struct {
@@ -71,9 +72,17 @@ func (app *application) addDefaultData(td *templateData, r *http.Request) *templ
 				defaultKvTableCaches["General"].cache = &kvTable{
 					Title: "General",
 					Values: map[string]string{
-                        "Current Date": time.Now().Format(time.RFC3339),
-                        "Remote Address": realip.FromRequest(r),
+						"Current Date":   time.Now().Format(time.RFC3339),
+						"Remote Address": realip.FromRequest(r),
 					},
+				}
+
+				if app.config.Timeout > 0 {
+					defaultKvTableCaches["General"].cache.Values["Timeout after"] = fmt.Sprintf("%s seconds", strconv.FormatInt(app.config.Timeout, 10))
+				}
+
+				if app.config.MaxRequests > 0 {
+					defaultKvTableCaches["General"].cache.Values["Max requests"] = strconv.FormatInt(app.config.MaxRequests, 10)
 				}
 			})
 			return defaultKvTableCaches["General"].cache
