@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 
 	"go.uber.org/atomic"
@@ -32,7 +33,10 @@ func (app *application) maxRequests(h http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		if app.config.MaxRequests > 0 {
 			if i := requests.Inc(); i >= app.config.MaxRequests {
-				close(requestLimitChan)
+				select {
+				case app.stoppingCh <- fmt.Sprintf("Kubico request limit reached of %d requests", app.config.MaxRequests):
+				default:
+				}
 			}
 		}
 

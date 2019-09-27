@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"flag"
+	"fmt"
 	"html/template"
 	"log"
 	"net"
@@ -35,22 +36,44 @@ type application struct {
 	infoLog       *log.Logger
 	server        *http.Server
 	wg            sync.WaitGroup
+	stoppingCh    chan string
 	templateCache map[string]*template.Template
 }
 
-var timeoutChan, requestLimitChan chan struct{}
-
 func main() {
 	app := &application{
-		config:   &config{},
-		errorLog: log.New(os.Stderr, "ERROR\t", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile),
-		infoLog:  log.New(os.Stdout, "INFO\t", log.LUTC|log.Ldate|log.Ltime),
+		config:     &config{},
+		stoppingCh: make(chan string, 1),
+		errorLog:   log.New(os.Stderr, "ERROR\t", log.LUTC|log.Ldate|log.Ltime|log.Lshortfile),
+		infoLog:    log.New(os.Stdout, "INFO\t", log.LUTC|log.Ldate|log.Ltime),
 	}
 
 	err := app.fetchConfig()
 	if err != nil {
 		app.errorLog.Fatal(err)
 	}
+
+	stopCh := make(chan struct{})
+
+	go func() {
+		msg := <-app.stoppingCh
+		if msg != "" {
+			app.infoLog.Println(msg)
+		}
+		close(stopCh)
+	}()
+	app.SetAppTimeout()
+
+	go func() {
+		sigCh := make(chan os.Signal, 1)
+		signal.Notify(sigCh, os.Interrupt, os.Kill, syscall.SIGTERM)
+		<-sigCh
+
+		select {
+		case app.stoppingCh <- fmt.Sprint("Got a OS interrupt signal"):
+		default:
+		}
+	}()
 
 	templateCache, err := newTemplateCache()
 	if err != nil {
@@ -61,23 +84,7 @@ func main() {
 	app.Start()
 	defer app.Stop()
 
-	app.SetAppTimeout()
-
-	if app.config.MaxRequests > 0 {
-		requestLimitChan = make(chan struct{}, 1)
-	}
-
-	sigChan := make(chan os.Signal, 1)
-	signal.Notify(sigChan, os.Interrupt, os.Kill, syscall.SIGTERM)
-
-	select {
-	case <-sigChan:
-		app.infoLog.Print("Got a OS interrupt signal.")
-	case <-timeoutChan:
-		app.infoLog.Printf("Kubico timeout after %d seconds.", app.config.Timeout)
-	case <-requestLimitChan:
-		app.infoLog.Printf("Kubico request limit reached of %d requests", app.config.MaxRequests)
-	}
+	<-stopCh
 }
 
 func (app *application) Start() {
@@ -145,10 +152,11 @@ func (app *application) fetchConfig() error {
 
 func (app *application) SetAppTimeout() {
 	if app.config.Timeout > 0 {
-		timeoutChan = make(chan struct{}, 1)
-
 		time.AfterFunc(time.Duration(app.config.Timeout)*time.Second, func() {
-			close(timeoutChan)
+			select {
+			case app.stoppingCh <- fmt.Sprintf("Kubico timeout after %d seconds.", app.config.Timeout):
+			default:
+			}
 		})
 	}
 }
