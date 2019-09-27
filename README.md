@@ -28,5 +28,5 @@ task --list
 ## Screenshot
 
 <div align="center">
-  <img width="500" src="https://raw.githubusercontent.com/Ilyes512/kubico/master/docs/assets/images/kubico.png">
+  <img width="500" src="docs/assets/images/kubico.png">
 </div>
