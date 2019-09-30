@@ -5,11 +5,10 @@ ENV COMPRESS=$COMPRESS
 
 WORKDIR /src
 
-RUN apk add --no-cache \
+RUN apk add --no-cache --upgrade \
         git \
         musl-dev \
         gcc \
-        make \
         libc-dev \
         upx \
     && go get -u github.com/gobuffalo/packr/v2/packr2
