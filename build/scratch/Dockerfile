@@ -1,6 +1,6 @@
-ARG KUBICO_VERSION=0.1.0
+ARG KUBICO_VERSION=latest
 
-FROM ilyes512/kubico-builder:$KUBICO_VERSION-builder as src
+FROM ilyes512/kubico-builder:$KUBICO_VERSION as src
 
 FROM scratch
 

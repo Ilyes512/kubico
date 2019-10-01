@@ -1,0 +1,33 @@
+name: Docker build tag
+
+on:
+  push:
+    tags:
+      - '**'
+jobs:
+  build-latest:
+    name: Build
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@master
+        with:
+          fetch-depth: 1
+      - name: Login to docker registry
+        uses: azure/docker-login@v1
+        with:
+          username: ${{ secrets.REGISTRY_USERNAME }}
+          password: ${{ secrets.REGISTRY_PASSWORD }}
+      - name: Build containers
+        run: |
+          TAG=`echo ${{ github.ref }} | cut -c11-`
+          echo "Docker Tag $TAG"
+          docker build --tag ilyes512/kubico-builder:$TAG --file ./build/builder/Dockerfile --build-arg COMPRESS=true .
+          docker build --tag ilyes512/kubico:$TAG-scratch --file ./build/scratch/Dockerfile --build-arg KUBICO_VERSION=$TAG .
+          docker build --tag ilyes512/kubico:$TAG-alpine --file ./build/alpine/Dockerfile --build-arg KUBICO_VERSION=$TAG .
+      - name: Push containers
+        run: |
+          TAG=`echo ${{ github.ref }} | cut -c11-`
+          echo "Docker Tag $TAG"
+          docker push ilyes512/kubico-builder:$TAG
+          docker push ilyes512/kubico:$TAG-scratch
+          docker push ilyes512/kubico:$TAG-alpine
