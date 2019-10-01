@@ -46,7 +46,8 @@ tasks:
     desc: Build docker container
     silent: true
     cmds:
-      - docker build --tag ilyes512/kubico:fromsource --file ./build/Dockerfile .
+      - docker build --tag ilyes512/kubico-builder:fromsource-builder --file ./build/builder/Dockerfile .
+      - docker build --tag ilyes512/kubico:fromsource-scratch --file ./build/scratch/Dockerfile --build-arg KUBICO_VERSION=fromsource .
 
   d:run:
     desc: Run the container
