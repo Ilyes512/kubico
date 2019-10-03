@@ -1,6 +1,5 @@
 # Kubico
 
-[![Docker Cloud Build Status](https://img.shields.io/docker/cloud/build/ilyes512/kubico.svg)](https://hub.docker.com/r/ilyes512/kubico)
 [![Docker Pulls](https://img.shields.io/docker/pulls/ilyes512/kubico.svg)](https://hub.docker.com/r/ilyes512/kubico)
 [![MicroBadger Layers](https://img.shields.io/microbadger/layers/ilyes512/kubico.svg)](https://microbadger.com/images/ilyes512/kubico)
 
