@@ -3,15 +3,14 @@
     "development": "NODE_ENV=development postcss src/tailwind.css -o dist/tailwind.css",
     "production": "NODE_ENV=production postcss src/tailwind.css -o dist/tailwind.css"
   },
-  "dependencies": {
+  "devDependencies": {
     "autoprefixer": "^9.7.5",
     "postcss-nested-ancestors": "^2.0.0",
-    "tailwindcss": "^1.2.0"
-  },
-  "devDependencies": {
+    "tailwindcss": "^1.2.0",
     "@fullhuman/postcss-purgecss": "^2.1.0",
     "cssnano": "^4.1.10",
     "postcss-cli": "^7.1.0",
-    "postcss-nested": "^4.2.1"
+    "postcss-nested": "^4.2.1",
+    "minimist": "^0.2.1"
   }
 }
