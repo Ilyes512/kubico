@@ -1,10 +1,11 @@
-version: "2"
+version: "3"
 
 silent: true
 
 vars:
   EXE: kubico{{exeExt}}
-  NODE_TAG_VERSION: 13.12.0-buster
+  NODE_TAG_VERSION: 18.14.0-bullseye
+  NODE_NPM_VOLUME: kubico_node_npm
 
 tasks:
   run:
@@ -22,14 +23,8 @@ tasks:
   cleanup:
     desc: Cleanup
     cmds:
-      - go clean -n github.com/Ilyes512/kubico
-      - if [ -x "$(command -v packr2)" ]; then packr2 clean; fi
-
-  dl-deps:
-    desc: Install tools required to build this app
-    cmds:
-      - task: go-get
-        vars: { REPO: github.com/gobuffalo/packr/v2/packr2 }
+      - docker volume rm {{.NODE_NPM_VOLUME}} > /dev/null 2>&1 || true
+      - rm -rf assets/node_modules
 
   go-get:
     cmds:
@@ -63,27 +58,46 @@ tasks:
 # NODE / NPM
 #
 ########################################################################################################################
-  n:install:
+  node:run:
+    cmds:
+      - docker run
+        --rm
+        --interactive
+        --tty
+        --env npm_config_cache=/tmp/npmcache
+        --user $(id -u):$(id -g)
+        --volume $(pwd)/assets:/src/assets
+        --volume $(pwd)/templates:/src/templates
+        --workdir /src/assets
+        node:{{.NODE_TAG_VERSION}} {{.RUN_CMD}}
+
+  node:shell:
+    desc: Opens up "assets"-dir in a container with NodeJS
+    interactive: true
+    cmds:
+      - task: node:run
+        vars: { RUN_CMD: bash }
+
+  node:install:
     desc: Run "npm install"
     cmds:
-      - docker run --rm --tty --user $(id -u):$(id -g) -v $(pwd)/assets:/assets --workdir /assets node:{{.NODE_TAG_VERSION}} npm install
+      - task: node:run
+        vars: { RUN_CMD: npm ci }
 
-  n:update:
+  node:update:
     desc: Run "npm update"
     cmds:
-      - docker run --rm --tty --user $(id -u):$(id -g) -v $(pwd)/assets:/assets --workdir /assets node:{{.NODE_TAG_VERSION}} npm update
+      - task: node:run
+        vars: { RUN_CMD: npm update }
 
-  n:dev:
+  node:dev:
     desc: Run "npm run development"
     cmds:
-      - docker run --rm --tty --user $(id -u):$(id -g) -v $(pwd)/assets:/assets --workdir /assets node:{{.NODE_TAG_VERSION}} npm run development
+      - task: node:run
+        vars: { RUN_CMD: npm run dev }
 
-  n:prd:
-    desc: Run "npm run development"
+  node:prd:
+    desc: Run "npm run production"
     cmds:
-      - docker run --rm --tty --user $(id -u):$(id -g) -v $(pwd)/assets:/assets --workdir /assets node:{{.NODE_TAG_VERSION}} npm run production
-
-  n:dev:watch:
-    desc: Run "npm run development"
-    cmds:
-      - NODE_ENV=development postcss src/tailwind.css -o dist/tailwind.css -- --watch
+      - task: node:run
+        vars: { RUN_CMD: npm run prod }
