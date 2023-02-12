@@ -1,6 +1,5 @@
 /.git
 /.vscode
-/build
 /assets
 !/assets/dist
 /.dockerignore
@@ -10,3 +9,4 @@
 /kubico
 /README.md
 /Taskfile.yml
+/.hadolint.yml

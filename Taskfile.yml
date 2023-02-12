@@ -3,6 +3,11 @@ version: "3"
 silent: true
 
 vars:
+  DOCKER_REPO: ghcr.io
+  DOCKER_OWNER: ilyes512
+  DOCKER_IMAGE_NAME: kubico
+  # Latatest version of Hadolint: https://hub.docker.com/r/hadolint/hadolint/tags or https://github.com/hadolint/hadolint/releases
+  HADOLINT_TAG_VERSION: v2.12.0
   EXE: kubico{{exeExt}}
   NODE_TAG_VERSION: 18.14.0-bullseye
   NODE_NPM_VOLUME: kubico_node_npm
@@ -10,6 +15,7 @@ vars:
 tasks:
   run:
     desc: Build and run the web app
+    interactive: true
     cmds:
       - go run .
 
@@ -18,10 +24,9 @@ tasks:
     cmds:
       - go generate
       - go build -v -o {{.EXE}}
-      - packr2 clean
 
   cleanup:
-    desc: Cleanup
+    desc: Cleanup workspace
     cmds:
       - docker volume rm {{.NODE_NPM_VOLUME}} > /dev/null 2>&1 || true
       - rm -rf assets/node_modules
@@ -38,20 +43,32 @@ tasks:
 
   d:build:
     desc: Build docker container
+    deps: [d:lint]
     cmds:
-      - docker build --tag ilyes512/kubico-builder:fromsource-builder --file ./build/builder/Dockerfile .
-      - docker build --tag ilyes512/kubico:fromsource-scratch --file ./build/scratch/Dockerfile --build-arg KUBICO_VERSION=fromsource .
+      - docker build --tag {{.DOCKER_REPO}}/{{.DOCKER_OWNER}}/{{.DOCKER_IMAGE_NAME}}:debian --build-arg=GOARCH={{ARCH}} --build-arg=COMPRESS={{.COMPRESS | default 0}} --target debian .
+      - docker build --tag {{.DOCKER_REPO}}/{{.DOCKER_OWNER}}/{{.DOCKER_IMAGE_NAME}}:scratch --build-arg=GOARCH={{ARCH}} --build-arg=COMPRESS={{.COMPRESS | default 0}} .
 
   d:run:
     desc: Run the container
     deps: [d:build]
+    interactive: true
+    vars:
+      ENV_EXISTS:
+        sh: if [ -s .env ]; then echo 1; else echo 0; fi
     cmds:
-      - |-
-        if [ -s .env ]; then
-          docker run --tty --interactive --rm --publish 8080:8080 --volume $(pwd)/.env:/.env ilyes512/kubico:fromsource;
-        else
-          docker run --tty --interactive --rm --publish 8080:8080 ilyes512/kubico:fromsource;
-        fi
+      - docker run --tty --interactive --rm --publish 8080:8080 {{if eq .ENV_EXISTS "1"}}--volume $(pwd)/.env:/.env{{end}} {{.DOCKER_REPO}}/{{.DOCKER_OWNER}}/{{.DOCKER_IMAGE_NAME}}:scratch;
+
+  d:lint:
+    desc: Apply a Dockerfile linter (https://github.com/hadolint/hadolint)
+    cmds:
+      - docker run
+        --interactive
+        --rm
+        --volume $(pwd)/.hadolint.yml:/.hadolint.yml
+        hadolint/hadolint:{{.HADOLINT_TAG_VERSION}}
+        hadolint
+        -
+        < Dockerfile
 
 ########################################################################################################################
 #
