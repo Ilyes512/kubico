@@ -1,8 +1,18 @@
 # Kubico
 
+[![Build Images](https://github.com/Ilyes512/kubico/actions/workflows/build.yml/badge.svg)](https://github.com/Ilyes512/kubico/actions/workflows/build.yml)
+
+
 <div align="center">
   <img width="500" src="docs/assets/images/kubico.png">
 </div>
+
+## Pulling the images
+
+```
+docker pull ghcr.io/ilyes512/kubico:latest
+docker pull ghcr.io/ilyes512/kubico:debian-latest
+```
 
 ## How to use/build
 
