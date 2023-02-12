@@ -1,4 +1,3 @@
-//go:generate packr2
 package main
 
 import (
@@ -66,11 +65,11 @@ func main() {
 
 	go func() {
 		sigCh := make(chan os.Signal, 1)
-		signal.Notify(sigCh, os.Interrupt, os.Kill, syscall.SIGTERM)
+		signal.Notify(sigCh, os.Interrupt, syscall.SIGTERM)
 		<-sigCh
 
 		select {
-		case app.stoppingCh <- fmt.Sprint("Got a OS interrupt signal"):
+		case app.stoppingCh <- "Got a OS interrupt signal":
 		default:
 		}
 	}()

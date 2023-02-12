@@ -1,10 +1,10 @@
 package main
 
 import (
+	"embed"
 	"html/template"
+	"io/fs"
 	"path/filepath"
-
-	packr "github.com/gobuffalo/packr/v2"
 )
 
 type kvTable struct {
@@ -16,23 +16,59 @@ type templateData struct {
 	KvTables map[string]*kvTable
 }
 
+//go:embed templates/*.tmpl
+var templates embed.FS
+
 func newTemplateCache() (map[string]*template.Template, error) {
 	cache := map[string]*template.Template{}
-
-	templatesBox := packr.New("templates", "./templates")
 
 	pageCache := map[string]string{}
 	layoutCache := map[string]string{}
 	partialCache := map[string]string{}
-	err := templatesBox.Walk(func(path string, file packr.File) error {
+	err := fs.WalkDir(templates, "templates", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if d.IsDir() {
+			return nil
+		}
+
 		name := filepath.Base(path)
 
-		if ok, _ := filepath.Match("*.page.tmpl", path); ok {
-			pageCache[name] = file.String()
-		} else if ok, _ := filepath.Match("*.layout.tmpl", path); ok {
-			layoutCache[name] = file.String()
-		} else if ok, _ := filepath.Match("*.partial.tmpl", path); ok {
-			partialCache[name] = file.String()
+		if ok, err := filepath.Match("*.page.tmpl", name); ok || err != nil {
+			if err != nil {
+				return err
+			}
+
+			file, err := fs.ReadFile(templates, path)
+			if err != nil {
+				return err
+			}
+
+			pageCache[name] = string(file)
+		} else if ok, err := filepath.Match("*.layout.tmpl", name); ok || err != nil {
+			if err != nil {
+				return err
+			}
+
+			file, err := fs.ReadFile(templates, path)
+			if err != nil {
+				return err
+			}
+
+			layoutCache[name] = string(file)
+		} else if ok, err := filepath.Match("*.partial.tmpl", name); ok || err != nil {
+			if err != nil {
+				return err
+			}
+
+			file, err := fs.ReadFile(templates, path)
+			if err != nil {
+				return err
+			}
+
+			partialCache[name] = string(file)
 		}
 
 		return nil
