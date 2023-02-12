@@ -29,7 +29,7 @@ tasks:
     desc: Cleanup workspace
     cmds:
       - docker volume rm {{.NODE_NPM_VOLUME}} > /dev/null 2>&1 || true
-      - rm -rf assets/node_modules
+      - git clean -Xd --force
 
   go-get:
     cmds:
