@@ -32,7 +32,7 @@ COPY --from=builder /src/kubico /usr/local/bin
 
 CMD ["kubico"]
 
-FROM scratch
+FROM scratch AS scratch
 
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs
 COPY --from=builder /src/kubico /
