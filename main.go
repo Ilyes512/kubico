@@ -16,7 +16,7 @@ import (
 	"syscall"
 	"time"
 
-	env "github.com/caarlos0/env/v6"
+	env "github.com/caarlos0/env/v7"
 	"github.com/joho/godotenv"
 )
 
