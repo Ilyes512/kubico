@@ -65,7 +65,7 @@ jobs:
             type=ref,event=tag
             type=ref,event=pr,prefix=pr-
       - name: Build and push (debian)
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           push: ${{ !(env.ACT || github.actor == 'dependabot[bot]') }}
           context: .
@@ -74,7 +74,7 @@ jobs:
           tags: ${{ steps.meta_debian.outputs.tags }}
           labels: ${{ steps.meta_debian.outputs.labels }}
       - name: Build and push (scratch)
-        uses: docker/build-push-action@v4
+        uses: docker/build-push-action@v5
         with:
           push: ${{ !(env.ACT || github.actor == 'dependabot[bot]') }}
           context: .
