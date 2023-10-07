@@ -46,8 +46,15 @@ tasks:
     desc: Build docker container
     deps: [d:lint]
     cmds:
-      - docker build --tag {{.DOCKER_REPO}}/{{.DOCKER_OWNER}}/{{.DOCKER_IMAGE_NAME}}:debian --build-arg=GOARCH={{ARCH}} --build-arg=COMPRESS={{.COMPRESS | default 0}} --target debian .
-      - docker build --tag {{.DOCKER_REPO}}/{{.DOCKER_OWNER}}/{{.DOCKER_IMAGE_NAME}}:scratch --build-arg=GOARCH={{ARCH}} --build-arg=COMPRESS={{.COMPRESS | default 0}} .
+      - docker build
+        --tag {{.DOCKER_REPO}}/{{.DOCKER_OWNER}}/{{.DOCKER_IMAGE_NAME}}:debian
+        --build-arg=GOARCH={{ARCH}}
+        --target debian
+        .
+      - docker build
+        --tag {{.DOCKER_REPO}}/{{.DOCKER_OWNER}}/{{.DOCKER_IMAGE_NAME}}:scratch
+        --build-arg=GOARCH={{ARCH}}
+        .
 
   d:run:
     desc: Run the container
@@ -57,7 +64,13 @@ tasks:
       ENV_EXISTS:
         sh: if [ -s .env ]; then echo 1; else echo 0; fi
     cmds:
-      - docker run --tty --interactive --rm --publish 8080:8080 {{if eq .ENV_EXISTS "1"}}--volume $(pwd)/.env:/.env{{end}} {{.DOCKER_REPO}}/{{.DOCKER_OWNER}}/{{.DOCKER_IMAGE_NAME}}:scratch;
+      - docker run
+        --tty
+        --interactive
+        --rm
+        --publish 8080:8080
+        {{if eq .ENV_EXISTS "1"}} --volume $(pwd)/.env:/.env {{end}}
+        {{.DOCKER_REPO}}/{{.DOCKER_OWNER}}/{{.DOCKER_IMAGE_NAME}}:scratch
 
   d:lint:
     desc: Apply a Dockerfile linter (https://github.com/hadolint/hadolint)
