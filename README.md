@@ -18,7 +18,7 @@ docker pull ghcr.io/ilyes512/kubico:debian-latest
 
 Requirements:
 - [Docker](https://docs.docker.com/install/)
-- [Task](https://taskfile.dev/#/installation) A Task runner)
+- [Task](https://taskfile.dev/#/installation) (A Task runner)
 
 ## Task commands
 
