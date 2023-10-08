@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "dev": "NODE_ENV=development postcss src/tailwind.css -o dist/tailwind.css",
-    "prod": "NODE_ENV=production postcss src/tailwind.css -o dist/tailwind.css"
+    "dev": "NODE_ENV=development postcss src/tailwind.css -o ../dist/tailwind.css",
+    "prod": "NODE_ENV=production postcss src/tailwind.css -o ../dist/tailwind.css"
   },
   "devDependencies": {
     "@fullhuman/postcss-purgecss": "^5.0.0",

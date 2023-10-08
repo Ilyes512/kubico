@@ -1,3 +1,16 @@
+FROM node:18.18.0-bullseye AS node
+
+WORKDIR /src/assets
+
+COPY ./assets/package*.json .
+
+RUN npm ci
+
+COPY ./assets .
+COPY ./templates ../templates
+
+RUN npm run prod
+
 FROM golang:1.21.2-bookworm AS builder
 
 WORKDIR /src
@@ -12,6 +25,8 @@ COPY go.sum .
 RUN go mod download
 
 COPY . .
+
+COPY --from=node /src/dist dist
 
 ARG GOARCH=amd64
 
