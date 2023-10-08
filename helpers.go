@@ -20,8 +20,8 @@ type defaultKvTableCache struct {
 }
 
 var defaultKvTableCaches = map[string]*defaultKvTableCache{
-	"Env":     &defaultKvTableCache{},
-	"General": &defaultKvTableCache{},
+	"Env":     {},
+	"General": {},
 }
 
 func (app *application) serverError(w http.ResponseWriter, err error) {
@@ -43,7 +43,7 @@ func (app *application) notFound(w http.ResponseWriter) {
 func (app *application) render(w http.ResponseWriter, r *http.Request, name string, td *templateData) {
 	ts, ok := app.templateCache[name]
 	if !ok {
-		app.serverError(w, fmt.Errorf("The template %s does not exist", name))
+		app.serverError(w, fmt.Errorf("the template %s does not exist", name))
 	}
 
 	buf := new(bytes.Buffer)

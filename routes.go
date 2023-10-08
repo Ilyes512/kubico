@@ -6,14 +6,14 @@ import (
 	"net/http"
 )
 
-//go:embed assets/dist/*
+//go:embed dist/*
 var assets embed.FS
 
 func (app *application) routes() *http.ServeMux {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", app.maxRequests(app.home))
 
-	assetsFS, err := fs.Sub(assets, "assets/dist")
+	assetsFS, err := fs.Sub(assets, "dist")
 	if err != nil {
 		app.errorLog.Println(err.Error())
 	}
