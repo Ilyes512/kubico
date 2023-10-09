@@ -44,7 +44,7 @@ jobs:
         uses: docker/setup-buildx-action@v3.0.0
       - name: Docker meta (debian)
         id: meta_debian
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
           images: ${{ steps.image_name.outputs.lowercase }}
           flavor: |
@@ -55,7 +55,7 @@ jobs:
             type=ref,event=pr,prefix=debian-pr-
       - name: Docker meta (scratch)
         id: meta_scratch
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
           images: ${{ steps.image_name.outputs.lowercase }}
           flavor: |
