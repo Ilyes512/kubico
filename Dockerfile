@@ -1,4 +1,4 @@
-FROM node:18.18.1-bullseye AS node
+FROM node:18.18.2-bullseye AS node
 
 WORKDIR /src/assets
 
