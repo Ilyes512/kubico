@@ -11,7 +11,7 @@ COPY ./templates ../templates
 
 RUN npm run prod
 
-FROM golang:1.21.4-bookworm AS builder
+FROM golang:1.21.6-bookworm AS builder
 
 WORKDIR /src
 
