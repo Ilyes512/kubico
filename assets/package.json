@@ -4,13 +4,13 @@
     "prod": "NODE_ENV=production postcss src/tailwind.css -o ../dist/tailwind.css"
   },
   "devDependencies": {
-    "@fullhuman/postcss-purgecss": "^5.0.0",
-    "cssnano": "^6.0.1",
+    "@fullhuman/postcss-purgecss": "^8.0.0",
+    "cssnano": "^9.8.0",
     "postcss": "^8.4.20",
     "postcss-cli": "^10.1.0",
-    "postcss-nested": "^6.0.0",
+    "postcss-nested": "^8.0.1",
     "postcss-nested-ancestors": "^3.0.0",
-    "postcss-preset-env": "^9.1.4",
-    "tailwindcss": "^3.2.4"
+    "postcss-preset-env": "^11.6.1",
+    "tailwindcss": "^4.3.3"
   }
 }
